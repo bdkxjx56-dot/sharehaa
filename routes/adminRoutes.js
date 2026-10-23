@@ -1221,6 +1221,7 @@ router.post("/company/footer-file/:key", authMiddleware, uploadLimiter, uploadFo
       const publicId = "footer_doc_" + key + "_" + Date.now() + ".pdf";
       result = await uploadToCloudinary(req.file.buffer, "company/documents", {
         resource_type: "raw",
+        access_mode: "public",
         public_id: publicId,
       });
     } catch (uploadErr) {
