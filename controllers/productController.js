@@ -108,7 +108,7 @@ exports.getFeaturedProducts = async (req, res) => {
     const cached = getCached(cacheKey);
     if (cached) return res.json(cached);
 
-    const featured = await Product.find({ inStock: true, isFeatured: true })
+    const featured = await Product.find({ isFeatured: true })
       .sort({ sortOrder: 1, originalPrice: -1 })
       .limit(6)
       .lean();
@@ -120,8 +120,8 @@ exports.getFeaturedProducts = async (req, res) => {
 
     // Fallback: legacy behaviour — parallel queries
     const [stc, mobily] = await Promise.all([
-      Product.find({ inStock: true, brand: { $regex: /^stc/i } }).sort({ originalPrice: -1 }).limit(2).lean(),
-      Product.find({ inStock: true, brand: { $regex: /موبايلي/ } }).sort({ originalPrice: -1 }).limit(2).lean(),
+      Product.find({ brand: { $regex: /^stc/i } }).sort({ originalPrice: -1 }).limit(2).lean(),
+      Product.find({ brand: { $regex: /موبايلي/ } }).sort({ originalPrice: -1 }).limit(2).lean(),
     ]);
     const result = [...stc, ...mobily];
     setCached(cacheKey, result);
@@ -155,7 +155,6 @@ exports.getHomeSections = async (req, res) => {
         const brandName = s.subCategory;
         const products = await Product.find({
           brand: { $regex: new RegExp(`^${brandName}$`, "i") },
-          inStock: { $ne: false },
         })
           .sort({ sortOrder: 1, createdAt: -1 })
           .limit(10)
